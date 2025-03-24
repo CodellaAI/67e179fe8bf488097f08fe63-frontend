@@ -22,7 +22,7 @@ export default function InviteModal({ guild, onClose }) {
     
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/guilds/${guild._id}/invites`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/invites/guilds/${guild._id}`,
         {},
         { withCredentials: true }
       )
