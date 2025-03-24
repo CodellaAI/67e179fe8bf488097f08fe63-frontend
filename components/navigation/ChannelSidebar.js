@@ -10,7 +10,6 @@ import {
   ChevronDown, 
   ChevronRight, 
   Plus, 
-  Users, 
   UserPlus,
   LogOut
 } from 'lucide-react'
@@ -19,7 +18,6 @@ import UserPanel from '@/components/user/UserPanel'
 import CreateChannelModal from '@/components/modals/CreateChannelModal'
 import GuildSettingsModal from '@/components/modals/GuildSettingsModal'
 import InviteModal from '@/components/modals/InviteModal'
-import MembersModal from '@/components/modals/MembersModal'
 
 export default function ChannelSidebar({ 
   type, 
@@ -34,7 +32,6 @@ export default function ChannelSidebar({
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
-  const [isMembersModalOpen, setIsMembersModalOpen] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState({})
 
   const handleChannelCreated = (newChannel) => {
@@ -105,14 +102,6 @@ export default function ChannelSidebar({
           >
             <UserPlus size={16} className="mr-2" />
             <span>Invite People</span>
-          </button>
-          
-          <button 
-            className="w-full px-2 py-1 flex items-center text-discord-gray-text hover:text-white hover:bg-discord-gray-lighter rounded"
-            onClick={() => setIsMembersModalOpen(true)}
-          >
-            <Users size={16} className="mr-2" />
-            <span>View Members</span>
           </button>
         </div>
       )}
@@ -194,13 +183,6 @@ export default function ChannelSidebar({
         <InviteModal 
           guild={guild}
           onClose={() => setIsInviteModalOpen(false)}
-        />
-      )}
-
-      {isMembersModalOpen && (
-        <MembersModal 
-          guild={guild}
-          onClose={() => setIsMembersModalOpen(false)}
         />
       )}
     </div>

@@ -9,6 +9,7 @@ import ChannelSidebar from '@/components/navigation/ChannelSidebar'
 import ChatArea from '@/components/chat/ChatArea'
 import LoadingScreen from '@/components/LoadingScreen'
 import { useSocket } from '@/hooks/useSocket'
+import MembersSidebar from '@/components/navigation/MembersSidebar'
 
 export default function GuildChannels() {
   const router = useRouter()
@@ -18,6 +19,7 @@ export default function GuildChannels() {
   
   const [guild, setGuild] = useState(null)
   const [channels, setChannels] = useState([])
+  const [members, setMembers] = useState([])
   const [activeChannel, setActiveChannel] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -31,17 +33,21 @@ export default function GuildChannels() {
           throw new Error('Invalid guild ID format')
         }
 
-        const [guildResponse, channelsResponse] = await Promise.all([
+        const [guildResponse, channelsResponse, membersResponse] = await Promise.all([
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/guilds/${guildId}`, {
             withCredentials: true
           }),
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/guilds/${guildId}/channels`, {
+            withCredentials: true
+          }),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/guilds/${guildId}/members`, {
             withCredentials: true
           })
         ])
 
         setGuild(guildResponse.data)
         setChannels(channelsResponse.data)
+        setMembers(membersResponse.data)
         
         // Set the first channel as active if no channel is selected
         if (channelsResponse.data.length > 0 && !activeChannel) {
@@ -119,9 +125,30 @@ export default function GuildChannels() {
       }
     }
 
+    const handleMemberJoin = (data) => {
+      if (data.guildId === guildId) {
+        setMembers(prev => {
+          // Check if member already exists
+          const exists = prev.some(m => m._id === data.user._id)
+          if (exists) return prev
+          return [...prev, data.user]
+        })
+      }
+    }
+
+    const handleMemberLeave = (data) => {
+      if (data.guildId === guildId) {
+        setMembers(prev => 
+          prev.filter(member => member._id !== data.userId)
+        )
+      }
+    }
+
     socket.on('newChannel', handleNewChannel)
     socket.on('channelUpdate', handleChannelUpdate)
     socket.on('channelDelete', handleChannelDelete)
+    socket.on('memberJoin', handleMemberJoin)
+    socket.on('memberLeave', handleMemberLeave)
     
     return () => {
       // Leave the guild socket room when component unmounts
@@ -130,6 +157,8 @@ export default function GuildChannels() {
       socket.off('newChannel', handleNewChannel)
       socket.off('channelUpdate', handleChannelUpdate)
       socket.off('channelDelete', handleChannelDelete)
+      socket.off('memberJoin', handleMemberJoin)
+      socket.off('memberLeave', handleMemberLeave)
     }
   }, [socket, guildId, channels, activeChannel])
 
@@ -185,7 +214,7 @@ export default function GuildChannels() {
   }
 
   return (
-    <>
+    <div className="flex h-screen">
       <ChannelSidebar 
         type="guild" 
         guild={guild}
@@ -208,6 +237,11 @@ export default function GuildChannels() {
           </div>
         )}
       </div>
-    </>
+
+      <MembersSidebar 
+        guild={guild}
+        members={members}
+      />
+    </div>
   )
 }
