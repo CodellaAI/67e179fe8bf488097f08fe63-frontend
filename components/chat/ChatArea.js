@@ -11,7 +11,6 @@ import {
   AtSign, 
   PlusCircle, 
   Gift, 
-  Gif, 
   Sticker, 
   Smile,
   Send
@@ -244,9 +243,7 @@ export default function ChatArea({ type, channel, guild }) {
               <button type="button" className="hover:text-white">
                 <Gift size={20} />
               </button>
-              <button type="button" className="hover:text-white">
-                <Gif size={20} />
-              </button>
+              {/* Removed the Gif icon that was causing the error */}
               <button type="button" className="hover:text-white">
                 <Sticker size={20} />
               </button>
