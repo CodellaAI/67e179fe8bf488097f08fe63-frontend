@@ -4,7 +4,6 @@
 import { useState, useEffect, useContext, createContext } from 'react'
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import jwt from 'jsonwebtoken'
 
 const AuthContext = createContext()
 
@@ -19,23 +18,16 @@ export const AuthProvider = ({ children }) => {
       
       if (token) {
         try {
-          // Decode the JWT to get user info
-          const decoded = jwt.decode(token)
+          // Verify the token with the server
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
           
-          if (decoded) {
-            // Verify the token with the server
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-              withCredentials: true
-            })
-            
-            setUser(response.data)
-            setIsAuthenticated(true)
-          } else {
-            // Token is invalid
-            Cookies.remove('token')
-            setUser(null)
-            setIsAuthenticated(false)
-          }
+          setUser(response.data)
+          setIsAuthenticated(true)
         } catch (error) {
           console.error('Auth initialization error:', error)
           Cookies.remove('token')
