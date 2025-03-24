@@ -1,0 +1,101 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 220, 221, 222;
+  --background-rgb: 32, 34, 37;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  overflow: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2f3136;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #202225;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #40444b;
+}
+
+.channel-hover:hover {
+  background-color: rgba(79, 84, 92, 0.32);
+  border-radius: 4px;
+}
+
+.channel-active {
+  background-color: rgba(79, 84, 92, 0.32);
+  border-radius: 4px;
+}
+
+.server-icon {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #36393f;
+  color: #dcddde;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.server-icon:hover {
+  border-radius: 16px;
+  background-color: #5865f2;
+  color: white;
+}
+
+.server-active {
+  border-radius: 16px;
+  background-color: #5865f2;
+  color: white;
+}
+
+.server-indicator {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 8px;
+  border-radius: 0 4px 4px 0;
+  background-color: white;
+}
+
+@layer components {
+  .button-primary {
+    @apply bg-discord-primary text-white px-4 py-2 rounded hover:bg-opacity-80 transition;
+  }
+  
+  .button-secondary {
+    @apply bg-discord-gray-lighter text-white px-4 py-2 rounded hover:bg-opacity-80 transition;
+  }
+  
+  .input-field {
+    @apply bg-discord-gray-lighter text-white rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-discord-primary;
+  }
+  
+  .modal-container {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+  
+  .modal-content {
+    @apply bg-discord-gray-light rounded-md p-6 w-full max-w-md;
+  }
+}
