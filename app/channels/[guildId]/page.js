@@ -75,11 +75,19 @@ export default function GuildChannels() {
           toast.error('Failed to load guild data')
         }
         
-        router.push('/channels/@me')
+        // Only redirect if not already at @me
+        if (guildId !== '@me') {
+          router.push('/channels/@me')
+        }
       }
     }
 
     if (guildId) {
+      // Early return for @me route to prevent unnecessary API calls
+      if (guildId === '@me') {
+        router.push('/channels/@me')
+        return
+      }
       fetchGuildData()
     }
   }, [guildId, router, activeChannel])
@@ -180,6 +188,11 @@ export default function GuildChannels() {
     if (socket && channel) {
       socket.emit('joinChannel', channel._id)
     }
+  }
+
+  // Early return for @me route to prevent unnecessary rendering
+  if (guildId === '@me') {
+    return <LoadingScreen />
   }
 
   if (isLoading) {
