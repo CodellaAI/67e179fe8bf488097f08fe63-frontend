@@ -27,6 +27,12 @@ export default function GuildChannels() {
   useEffect(() => {
     const fetchGuildData = async () => {
       try {
+        // Handle the special case for Direct Messages
+        if (guildId === '@me') {
+          router.push('/channels/@me')
+          return
+        }
+
         // Validate guild ID format before making API calls
         const isValidId = /^[0-9a-fA-F]{24}$/.test(guildId)
         if (!isValidId) {
@@ -79,7 +85,7 @@ export default function GuildChannels() {
   }, [guildId, router, activeChannel])
 
   useEffect(() => {
-    if (!socket || !guildId) return
+    if (!socket || !guildId || guildId === '@me') return
 
     // Join the guild socket room
     socket.emit('joinGuild', guildId)
