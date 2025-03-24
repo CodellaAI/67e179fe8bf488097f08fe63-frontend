@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
         try {
           // Verify the token with the server
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-            withCredentials: true,
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -50,8 +49,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, 
-      credentials,
-      { withCredentials: true }
+      credentials
     )
     
     const { user, token } = response.data
@@ -67,9 +65,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {}, {
-        withCredentials: true
-      })
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {})
     } catch (error) {
       console.error('Logout error:', error)
     }
