@@ -20,10 +20,17 @@ export default function GuildChannels() {
   const [channels, setChannels] = useState([])
   const [activeChannel, setActiveChannel] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const fetchGuildData = async () => {
       try {
+        // Validate guild ID format before making API calls
+        const isValidId = /^[0-9a-fA-F]{24}$/.test(guildId)
+        if (!isValidId) {
+          throw new Error('Invalid guild ID format')
+        }
+
         const [guildResponse, channelsResponse] = await Promise.all([
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/guilds/${guildId}`, {
             withCredentials: true
@@ -44,8 +51,18 @@ export default function GuildChannels() {
         setIsLoading(false)
       } catch (error) {
         console.error('Failed to fetch guild data:', error)
-        toast.error('Failed to load guild data')
+        setError(error.message || 'Failed to load guild data')
         setIsLoading(false)
+        
+        // Show toast with specific error message
+        if (error.message === 'Invalid guild ID format') {
+          toast.error('Invalid guild ID format')
+        } else if (error.response?.status === 404) {
+          toast.error('Guild not found')
+        } else {
+          toast.error('Failed to load guild data')
+        }
+        
         router.push('/channels/@me')
       }
     }
@@ -111,6 +128,23 @@ export default function GuildChannels() {
 
   if (isLoading) {
     return <LoadingScreen />
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-discord-dark">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Error</h2>
+          <p className="mb-4">{error}</p>
+          <button 
+            onClick={() => router.push('/channels/@me')} 
+            className="button-primary"
+          >
+            Go back to Direct Messages
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (!guild) {
