@@ -40,18 +40,18 @@ export default function GuildSidebar() {
 
   const handleGuildCreated = (newGuild) => {
     setGuilds(prev => [...prev, newGuild])
-    router.push(`/channels/${newGuild._id}`)
+    router.push(`/guilds/${newGuild._id}`)
   }
 
   const handleGuildJoined = (guild) => {
     if (!guilds.some(g => g._id === guild._id)) {
       setGuilds(prev => [...prev, guild])
     }
-    router.push(`/channels/${guild._id}`)
+    router.push(`/guilds/${guild._id}`)
   }
 
   const navigateToGuild = (guildId) => {
-    router.push(`/channels/${guildId}`)
+    router.push(`/guilds/${guildId}`)
   }
 
   const navigateToDirectMessages = () => {
@@ -67,12 +67,14 @@ export default function GuildSidebar() {
       .slice(0, 2)
   }
 
+  // Check if we're in a guild route
   const isActive = (guildId) => {
     return params?.guildId === guildId
   }
 
+  // Check if we're in the DM route
   const isDMActive = () => {
-    return params?.guildId === undefined
+    return router.pathname === '/channels/@me'
   }
 
   return (
