@@ -214,7 +214,7 @@ export default function GuildChannels() {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen w-full">
       <ChannelSidebar 
         type="guild" 
         guild={guild}

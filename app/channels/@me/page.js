@@ -101,7 +101,7 @@ export default function DirectMessages() {
   }
 
   return (
-    <>
+    <div className="flex h-screen w-full">
       <ChannelSidebar type="direct-messages" conversations={conversations} />
       
       <div className="flex flex-col flex-1 bg-discord-gray-light">
@@ -134,6 +134,6 @@ export default function DirectMessages() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
