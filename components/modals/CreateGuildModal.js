@@ -6,11 +6,13 @@ import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import { X, Upload } from 'lucide-react'
+import { useSocket } from '@/hooks/useSocket'
 
 export default function CreateGuildModal({ onClose, onGuildCreated }) {
   const { register, handleSubmit, formState: { errors } } = useForm()
   const [isLoading, setIsLoading] = useState(false)
   const [previewImage, setPreviewImage] = useState(null)
+  const { socket } = useSocket()
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
@@ -43,6 +45,11 @@ export default function CreateGuildModal({ onClose, onGuildCreated }) {
           withCredentials: true
         }
       )
+      
+      // Join the guild socket room
+      if (socket) {
+        socket.emit('joinGuild', response.data._id)
+      }
       
       toast.success('Server created successfully!')
       onGuildCreated(response.data)

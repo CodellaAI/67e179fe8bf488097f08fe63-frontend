@@ -6,10 +6,12 @@ import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import { X, Hash } from 'lucide-react'
+import { useSocket } from '@/hooks/useSocket'
 
 export default function CreateChannelModal({ guildId, onClose, onChannelCreated }) {
   const { register, handleSubmit, formState: { errors } } = useForm()
   const [isLoading, setIsLoading] = useState(false)
+  const { socket } = useSocket()
 
   const onSubmit = async (data) => {
     setIsLoading(true)
@@ -26,6 +28,12 @@ export default function CreateChannelModal({ guildId, onClose, onChannelCreated 
       )
       
       toast.success('Channel created successfully!')
+      
+      // Emit socket event to notify other clients
+      if (socket) {
+        socket.emit('joinChannel', response.data._id)
+      }
+      
       onChannelCreated(response.data)
       onClose()
     } catch (error) {

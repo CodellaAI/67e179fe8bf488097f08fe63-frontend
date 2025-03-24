@@ -70,14 +70,22 @@ export default function GuildChannels() {
     if (guildId) {
       fetchGuildData()
     }
-  }, [guildId, router])
+  }, [guildId, router, activeChannel])
 
   useEffect(() => {
     if (!socket || !guildId) return
 
+    // Join the guild socket room
+    socket.emit('joinGuild', guildId)
+
     const handleNewChannel = (channel) => {
       if (channel.guild === guildId) {
-        setChannels(prev => [...prev, channel])
+        setChannels(prev => {
+          // Check if channel already exists
+          const exists = prev.some(c => c._id === channel._id)
+          if (exists) return prev
+          return [...prev, channel]
+        })
       }
     }
 
@@ -116,6 +124,9 @@ export default function GuildChannels() {
     socket.on('channelDelete', handleChannelDelete)
     
     return () => {
+      // Leave the guild socket room when component unmounts
+      socket.emit('leaveGuild', guildId)
+      
       socket.off('newChannel', handleNewChannel)
       socket.off('channelUpdate', handleChannelUpdate)
       socket.off('channelDelete', handleChannelDelete)
@@ -123,7 +134,17 @@ export default function GuildChannels() {
   }, [socket, guildId, channels, activeChannel])
 
   const handleSelectChannel = (channel) => {
+    // Leave previous channel room if exists
+    if (socket && activeChannel) {
+      socket.emit('leaveChannel', activeChannel._id)
+    }
+    
     setActiveChannel(channel)
+    
+    // Join new channel room
+    if (socket && channel) {
+      socket.emit('joinChannel', channel._id)
+    }
   }
 
   if (isLoading) {

@@ -64,15 +64,36 @@ export default function DirectMessages() {
       }
     }
 
+    const handleNewConversation = (conversation) => {
+      setConversations(prev => {
+        // Check if conversation already exists
+        const exists = prev.some(c => c._id === conversation._id)
+        if (exists) return prev
+        return [conversation, ...prev]
+      })
+    }
+
     socket.on('newMessage', handleNewMessage)
+    socket.on('newConversation', handleNewConversation)
     
     return () => {
       socket.off('newMessage', handleNewMessage)
+      socket.off('newConversation', handleNewConversation)
     }
   }, [socket])
 
   const handleSelectConversation = (conversation) => {
+    // Leave previous conversation room if exists
+    if (socket && activeConversation) {
+      socket.emit('leaveConversation', activeConversation._id)
+    }
+    
     setActiveConversation(conversation)
+    
+    // Join new conversation room
+    if (socket && conversation) {
+      socket.emit('joinConversation', conversation._id)
+    }
   }
 
   if (isLoading) {

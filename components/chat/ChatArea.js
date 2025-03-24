@@ -67,7 +67,27 @@ export default function ChatArea({ type, channel, guild }) {
     }
 
     fetchMessages()
-  }, [channel, type, user])
+    
+    // Join channel or conversation room
+    if (socket) {
+      if (type === 'channel') {
+        socket.emit('joinChannel', channel._id)
+      } else {
+        socket.emit('joinConversation', channel._id)
+      }
+    }
+    
+    // Cleanup function
+    return () => {
+      if (socket) {
+        if (type === 'channel') {
+          socket.emit('leaveChannel', channel._id)
+        } else {
+          socket.emit('leaveConversation', channel._id)
+        }
+      }
+    }
+  }, [channel, type, user, socket])
 
   useEffect(() => {
     if (!socket || !channel) return
@@ -79,10 +99,34 @@ export default function ChatArea({ type, channel, guild }) {
       }
     }
 
+    const handleMessageUpdate = (updatedMessage) => {
+      if ((type === 'channel' && updatedMessage.channel === channel._id) || 
+          (type === 'conversation' && updatedMessage.conversationId === channel._id)) {
+        setMessages(prev => 
+          prev.map(message => 
+            message._id === updatedMessage._id ? updatedMessage : message
+          )
+        )
+      }
+    }
+
+    const handleMessageDelete = (deletedMessage) => {
+      if ((type === 'channel' && deletedMessage.channel === channel._id) || 
+          (type === 'conversation' && deletedMessage.conversationId === channel._id)) {
+        setMessages(prev => 
+          prev.filter(message => message._id !== deletedMessage._id)
+        )
+      }
+    }
+
     socket.on('newMessage', handleNewMessage)
+    socket.on('messageUpdate', handleMessageUpdate)
+    socket.on('messageDelete', handleMessageDelete)
     
     return () => {
       socket.off('newMessage', handleNewMessage)
+      socket.off('messageUpdate', handleMessageUpdate)
+      socket.off('messageDelete', handleMessageDelete)
     }
   }, [socket, channel, type])
 
