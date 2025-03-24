@@ -22,7 +22,8 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
             headers: {
               Authorization: `Bearer ${token}`
-            }
+            },
+            withCredentials: true
           })
           
           setUser(response.data)
@@ -42,14 +43,19 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const register = async (userData) => {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, userData)
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, userData, {
+      withCredentials: true
+    })
     return response.data
   }
 
   const login = async (credentials) => {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, 
-      credentials
+      credentials,
+      {
+        withCredentials: true
+      }
     )
     
     const { user, token } = response.data
@@ -65,7 +71,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {})
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {}, {
+        withCredentials: true
+      })
     } catch (error) {
       console.error('Logout error:', error)
     }
